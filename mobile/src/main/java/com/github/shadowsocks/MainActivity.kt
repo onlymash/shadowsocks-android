@@ -365,7 +365,6 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Interface, Drawe
 
     override fun onResume() {
         super.onResume()
-        app.remoteConfig.fetch()
     }
 
     override fun onStart() {

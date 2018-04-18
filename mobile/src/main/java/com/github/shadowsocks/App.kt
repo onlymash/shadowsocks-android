@@ -56,7 +56,6 @@ import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.StandardExceptionParser
 import com.google.android.gms.analytics.Tracker
 import com.google.firebase.FirebaseApp
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.j256.ormlite.logger.LocalLog
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat
 import java.io.File
@@ -70,7 +69,6 @@ class App : Application() {
 
     val handler by lazy { Handler(Looper.getMainLooper()) }
     val deviceContext: Context by lazy { if (Build.VERSION.SDK_INT < 24) this else DeviceContext(this) }
-    val remoteConfig: FirebaseRemoteConfig by lazy { FirebaseRemoteConfig.getInstance() }
     private val tracker: Tracker by lazy { GoogleAnalytics.getInstance(deviceContext).newTracker(R.xml.tracker) }
     private val exceptionParser by lazy { StandardExceptionParser(this, null) }
     val info: PackageInfo by lazy { getPackageInfo(packageName) }
@@ -133,10 +131,7 @@ class App : Application() {
         }
 
         FirebaseApp.initializeApp(deviceContext)
-        remoteConfig.setDefaults(R.xml.default_configs)
-        remoteConfig.fetch().addOnCompleteListener {
-            if (it.isSuccessful) remoteConfig.activateFetched() else Log.e(TAG, "Failed to fetch config")
-        }
+        
         try {
             JobManager.create(deviceContext).addJobCreator(AclSyncJob)
         } catch (e: JobManagerCreateException) {

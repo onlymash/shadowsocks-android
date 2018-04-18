@@ -100,16 +100,16 @@ class Profile : Serializable {
     var name: String? = ""
 
     @DatabaseField
-    var host: String = "198.199.101.152"
+    var host: String = ""
 
     @DatabaseField
-    var remotePort: Int = 8388
+    var remotePort: Int = 110
 
     @DatabaseField
-    var password: String = "u1rRWTssNv0p"
+    var password: String = ""
 
     @DatabaseField
-    var method: String = "aes-256-cfb"
+    var method: String = ""
 
     @DatabaseField
     var route: String = "all"
