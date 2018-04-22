@@ -21,6 +21,7 @@
 package com.github.shadowsocks.preference
 
 import android.os.Binder
+import android.support.v7.app.AppCompatDelegate
 import com.github.shadowsocks.App.Companion.app
 import com.github.shadowsocks.database.PrivateDatabase
 import com.github.shadowsocks.database.PublicDatabase
@@ -51,12 +52,16 @@ object DataStore {
         }
     val canToggleLocked: Boolean get() = publicStore.getBoolean(Key.directBootAware) == true
     val directBootAware: Boolean get() = app.directBootSupported && canToggleLocked
-    var nightMode: String
+    private var nightModeString: String
         get() = publicStore.getString(Key.nightMode) ?: Key.nightModeSystem
         set(value) = publicStore.putString(Key.nightMode, value)
-    var testUrl: String
-        get() = publicStore.getString(Key.testUrl) ?: "https://www.google.com/generate_204"
-        set(value) = publicStore.putString(Key.testUrl, value)
+    @AppCompatDelegate.NightMode
+    val nightMode: Int get() = when (nightModeString) {
+        Key.nightModeAuto -> AppCompatDelegate.MODE_NIGHT_AUTO
+        Key.nightModeOff -> AppCompatDelegate.MODE_NIGHT_NO
+        Key.nightModeOn -> AppCompatDelegate.MODE_NIGHT_YES
+        else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    }
     var serviceMode: String
         get() = publicStore.getString(Key.serviceMode) ?: Key.modeVpn
         set(value) = publicStore.putString(Key.serviceMode, value)
@@ -72,8 +77,7 @@ object DataStore {
 
     fun initGlobal() {
         // temporary workaround for support lib bug
-        if (publicStore.getString(Key.nightMode) == null) nightMode = nightMode
-        if (publicStore.getString(Key.testUrl) == null) testUrl = testUrl
+        if (publicStore.getString(Key.nightMode) == null) nightModeString = nightModeString
         if (publicStore.getString(Key.serviceMode) == null) serviceMode = serviceMode
         if (publicStore.getString(Key.portProxy) == null) portProxy = portProxy
         if (publicStore.getString(Key.portLocalDns) == null) portLocalDns = portLocalDns
