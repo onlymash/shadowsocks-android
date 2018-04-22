@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "755724519817-fkpie45t4q4dp88opf7g3jcdn2e5h4dq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.shadowsocks",
+            "certificate_hash": "a96d1bd5f3a9fc4f82dff8ee91865184284ecdc8"
+          }
+        },
+        {
           "client_id": "755724519817-26qhdiu564i31njabed6ps60befb2886.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "755724519817-26qhdiu564i31njabed6ps60befb2886.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
