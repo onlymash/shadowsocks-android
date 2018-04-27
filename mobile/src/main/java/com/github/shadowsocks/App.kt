@@ -31,10 +31,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.os.UserManager
+import android.os.*
 import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatDelegate
 import android.util.Log
@@ -51,11 +48,8 @@ import com.github.shadowsocks.preference.BottomSheetPreferenceDialogFragment
 import com.github.shadowsocks.preference.DataStore
 import com.github.shadowsocks.preference.IconListPreference
 import com.github.shadowsocks.utils.*
-import com.google.android.gms.analytics.GoogleAnalytics
-import com.google.android.gms.analytics.HitBuilders
-import com.google.android.gms.analytics.StandardExceptionParser
-import com.google.android.gms.analytics.Tracker
 import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.j256.ormlite.logger.LocalLog
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat
 import java.io.File
@@ -67,10 +61,10 @@ class App : Application() {
         private const val TAG = "ShadowsocksApplication"
     }
 
+    internal val bundle = Bundle()
+    lateinit var firebaseAnalytics: FirebaseAnalytics
     val handler by lazy { Handler(Looper.getMainLooper()) }
     val deviceContext: Context by lazy { if (Build.VERSION.SDK_INT < 24) this else DeviceContext(this) }
-    private val tracker: Tracker by lazy { GoogleAnalytics.getInstance(deviceContext).newTracker(R.xml.tracker) }
-    private val exceptionParser by lazy { StandardExceptionParser(this, null) }
     val info: PackageInfo by lazy { getPackageInfo(packageName) }
     val directBootSupported by lazy {
         Build.VERSION.SDK_INT >= 24 && getSystemService(DevicePolicyManager::class.java)
@@ -97,18 +91,16 @@ class App : Application() {
     }
 
     // send event
-    fun track(category: String, action: String) = tracker.send(HitBuilders.EventBuilder()
-            .setCategory(category)
-            .setAction(action)
-            .setLabel(BuildConfig.VERSION_NAME)
-            .build())
+    fun track(category: String, action: String) {
+        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, category)
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, action)
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, BuildConfig.VERSION_NAME)
+    }
     fun track(t: Throwable) = track(Thread.currentThread(), t)
     fun track(thread: Thread, t: Throwable) {
-        tracker.send(HitBuilders.ExceptionBuilder()
-                .setDescription("${exceptionParser.getDescription(thread.name, t)} - ${t.message}")
-                .setFatal(false)
-                .build())
+        bundle.putString(FirebaseAnalytics.Param.DESTINATION, thread.name + ": " + t.message)
         t.printStackTrace()
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
     }
 
     override fun onCreate() {
@@ -131,6 +123,7 @@ class App : Application() {
         }
 
         FirebaseApp.initializeApp(deviceContext)
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         
         try {
             JobManager.create(deviceContext).addJobCreator(AclSyncJob)

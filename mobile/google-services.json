@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "755724519817-8g3uts422lev5kt5lmc06u5s7f4tbtqo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.shadowsocks",
+            "certificate_hash": "de67bb7a43a01ad200c9d05fb31c6409bbdab729"
+          }
+        },
+        {
           "client_id": "755724519817-fkpie45t4q4dp88opf7g3jcdn2e5h4dq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
