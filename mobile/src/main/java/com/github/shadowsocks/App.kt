@@ -72,7 +72,15 @@ class App : Application() {
     }
 
     fun getPackageInfo(packageName: String) =
-            packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)!!
+            packageManager.getPackageInfo(packageName, getSignatures())!!
+
+    fun getSignatures(): Int {
+        val signature = PackageManager.GET_SIGNATURES
+        if (signature.equals(null)){
+            return 0;
+        }
+        return signature;
+    }
 
     fun startService() {
         val intent = Intent(this, BaseService.serviceClass.java)

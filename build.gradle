@@ -4,7 +4,7 @@ apply plugin: 'com.github.ben-manes.versions'
 
 buildscript {
     ext {
-        kotlinVersion = '1.2.40'
+        kotlinVersion = '1.2.41'
         minSdkVersion = 21
         sdkVersion = 27
         buildToolsVersion = '27.0.3'
@@ -12,8 +12,8 @@ buildscript {
         preferenceFixVersion = 'v27.1.1.1'
         playServicesVersion = '15.0.0'
         junitVersion = '4.12'
-        androidTestVersion = '1.0.1'
-        androidEspressoVersion = '3.0.1'
+        androidTestVersion = '1.0.2'
+        androidEspressoVersion = '3.0.2'
     }
 
     repositories {
