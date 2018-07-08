@@ -1,7 +1,7 @@
 /*******************************************************************************
  *                                                                             *
- *  Copyright (C) 2017 by Max Lv <max.c.lv@gmail.com>                          *
- *  Copyright (C) 2017 by Mygod Studio <contact-shadowsocks-android@mygod.be>  *
+ *  Copyright (C) 2018 by Max Lv <max.c.lv@gmail.com>                          *
+ *  Copyright (C) 2018 by Mygod Studio <contact-shadowsocks-android@mygod.be>  *
  *                                                                             *
  *  This program is free software: you can redistribute it and/or modify       *
  *  it under the terms of the GNU General Public License as published by       *
@@ -18,33 +18,18 @@
  *                                                                             *
  *******************************************************************************/
 
-package com.github.shadowsocks.database
+package com.github.shadowsocks.database.migration
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import com.github.shadowsocks.App.Companion.app
-import com.github.shadowsocks.database.migration.RecreateSchemaMigration
-import com.github.shadowsocks.utils.Key
+import android.arch.persistence.db.SupportSQLiteDatabase
+import android.arch.persistence.room.migration.Migration
 
-@Database(entities = [KeyValuePair::class], version = 3)
-abstract class PublicDatabase : RoomDatabase() {
-    companion object {
-        private val instance by lazy {
-            Room.databaseBuilder(app.deviceContext, PublicDatabase::class.java, Key.DB_PUBLIC)
-                    .allowMainThreadQueries()
-                    .addMigrations(
-                            Migration3
-                    )
-                    .fallbackToDestructiveMigration()
-                    .build()
-        }
-
-        val kvPairDao get() = instance.keyValuePairDao()
+open class RecreateSchemaMigration(oldVersion: Int, newVersion: Int, private val table: String,
+                                   private val schema: String, private val keys: String) :
+        Migration(oldVersion, newVersion) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE `tmp` $schema")
+        database.execSQL("INSERT INTO `tmp` ($keys) SELECT $keys FROM `$table`")
+        database.execSQL("DROP TABLE `$table`")
+        database.execSQL("ALTER TABLE `tmp` RENAME TO `$table`")
     }
-    abstract fun keyValuePairDao(): KeyValuePair.Dao
-
-    internal object Migration3 : RecreateSchemaMigration(2, 3, "KeyValuePair",
-            "(`key` TEXT NOT NULL, `valueType` INTEGER NOT NULL, `value` BLOB NOT NULL, PRIMARY KEY(`key`))",
-            "`key`, `valueType`, `value`")
 }

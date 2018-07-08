@@ -57,7 +57,6 @@ import com.google.android.gms.analytics.StandardExceptionParser
 import com.google.android.gms.analytics.Tracker
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.j256.ormlite.logger.LocalLog
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat
 import java.io.File
 import java.io.IOException
@@ -79,8 +78,9 @@ class App : Application() {
             .storageEncryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE_PER_USER
     }
 
-    fun getPackageInfo(packageName: String) =
-            packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)!!
+    fun getPackageInfo(packageName: String) = packageManager.getPackageInfo(packageName,
+            if (Build.VERSION.SDK_INT >= 28) PackageManager.GET_SIGNING_CERTIFICATES
+            else @Suppress("DEPRECATION") PackageManager.GET_SIGNATURES)!!
 
     fun startService() {
         val intent = Intent(this, BaseService.serviceClass.java)
@@ -92,7 +92,7 @@ class App : Application() {
     val currentProfile: Profile? get() =
         if (DataStore.directBootAware) DirectBoot.getDeviceProfile() else ProfileManager.getProfile(DataStore.profileId)
 
-    fun switchProfile(id: Int): Profile {
+    fun switchProfile(id: Long): Profile {
         val result = ProfileManager.getProfile(id) ?: ProfileManager.createProfile()
         DataStore.profileId = result.id
         return result
@@ -116,7 +116,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         app = this
-        if (!BuildConfig.DEBUG) System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "ERROR")
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         PreferenceFragmentCompat.registerPreferenceFragment(IconListPreference::class.java,
