@@ -5,7 +5,7 @@ apply from: 'gradle-mvn-push.gradle'
 
 android {
     buildToolsVersion rootProject.buildToolsVersion
-    compileSdkVersion rootProject.sdkVersion
+    compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
@@ -25,7 +25,7 @@ android {
 
 dependencies {
     api "com.android.support:preference-v14:$supportLibraryVersion"
-    api "com.github.onlymash.Android-Support-Preference-V7-Fix:preference-v7-simplemenu:$preferenceFixVersion"
+    api "com.takisoft.fix:preference-v7:$takisoftFixVersion"
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "com.android.support.test:runner:$androidTestVersion"

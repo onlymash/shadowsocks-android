@@ -29,7 +29,6 @@ import android.os.Build
 import android.os.IBinder
 import android.os.RemoteCallbackList
 import android.support.v4.os.UserManagerCompat
-import android.util.Base64
 import android.util.Log
 import com.github.shadowsocks.App.Companion.app
 import com.github.shadowsocks.R
@@ -44,16 +43,11 @@ import com.github.shadowsocks.plugin.PluginManager
 import com.github.shadowsocks.plugin.PluginOptions
 import com.github.shadowsocks.preference.DataStore
 import com.github.shadowsocks.utils.*
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
-import java.net.UnknownHostException
-import java.security.MessageDigest
+import java.net.*
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
@@ -106,6 +100,7 @@ object BaseService {
                         val t = Timer(true)
                         t.schedule(object : TimerTask() {
                             override fun run() {
+                                val profile = profile ?: return
                                 if (state == CONNECTED && TrafficMonitor.updateRate()) app.handler.post {
                                     if (bandwidthListeners.isNotEmpty()) {
                                         val txRate = TrafficMonitor.txRate
@@ -116,7 +111,7 @@ object BaseService {
                                         for (i in 0 until n) try {
                                             val item = callbacks.getBroadcastItem(i)
                                             if (bandwidthListeners.contains(item.asBinder()))
-                                                item.trafficUpdated(profile!!.id, txRate, rxRate, txTotal, rxTotal)
+                                                item.trafficUpdated(profile.id, txRate, rxRate, txTotal, rxTotal)
                                         } catch (e: Exception) {
                                             e.printStackTrace()
                                             app.track(e)
@@ -372,7 +367,17 @@ object BaseService {
                     killProcesses()
 
                     if (!profile.host.isNumericAddress())
-                        profile.host = Dns.resolve(profile.host, true) ?: throw UnknownHostException()
+                    {
+                        val resolveThread = thread() {
+                            profile.host = InetAddress.getByName(profile.host).hostAddress ?: throw UnknownHostException()
+                        }
+                        resolveThread.join(10 * 1000)
+                    }
+
+                    if (!profile.host.isNumericAddress())
+                    {
+                        throw UnknownHostException()
+                    }
 
                     startNativeProcesses()
 

@@ -22,7 +22,6 @@ package com.github.shadowsocks.acl
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -49,6 +48,7 @@ import com.github.shadowsocks.bg.BaseService
 import com.github.shadowsocks.utils.Subnet
 import com.github.shadowsocks.utils.asIterable
 import com.github.shadowsocks.utils.resolveResourceId
+import com.github.shadowsocks.utils.systemService
 import com.github.shadowsocks.widget.UndoSnackbarManager
 import java.net.IDN
 import java.net.MalformedURLException
@@ -193,15 +193,15 @@ class CustomRulesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener, 
             if (selectedItems.isNotEmpty()) onLongClick(v) else {
                 val dialog = AclRuleDialog(item)
                 dialog.builder
-                        .setNeutralButton(R.string.delete, { _, _ ->
+                        .setNeutralButton(R.string.delete) { _, _ ->
                             adapter.remove(item)
                             undoManager.remove(Pair(-1, item))
-                        })
-                        .setPositiveButton(android.R.string.ok, { _, _ ->
+                        }
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
                             adapter.remove(item)
                             val index = dialog.add() ?: adapter.add(item)
                             if (index != null) list.post { list.scrollToPosition(index) }
-                        })
+                        }
                 dialog.show()
             }
         }
@@ -361,7 +361,7 @@ class CustomRulesFragment : ToolbarFragment(), Toolbar.OnMenuItemClickListener, 
     private lateinit var list: RecyclerView
     private var mode: ActionMode? = null
     private lateinit var undoManager: UndoSnackbarManager<Any>
-    private val clipboard by lazy { requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
+    private val clipboard by lazy { requireContext().systemService<ClipboardManager>() }
 
     private fun onSelectedItemsUpdated() {
         if (selectedItems.isEmpty()) mode?.finish() else if (mode == null) mode = toolbar.startActionMode(this)

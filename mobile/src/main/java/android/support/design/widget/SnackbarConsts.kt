@@ -18,33 +18,8 @@
  *                                                                             *
  *******************************************************************************/
 
-package com.github.shadowsocks.database
+package android.support.design.widget
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import com.github.shadowsocks.App.Companion.app
-import com.github.shadowsocks.database.migration.RecreateSchemaMigration
-import com.github.shadowsocks.utils.Key
-
-@Database(entities = [KeyValuePair::class], version = 3)
-abstract class PublicDatabase : RoomDatabase() {
-    companion object {
-        private val instance by lazy {
-            Room.databaseBuilder(app.deviceContext, PublicDatabase::class.java, Key.DB_PUBLIC)
-                    .allowMainThreadQueries()
-                    .addMigrations(
-                            Migration3
-                    )
-                    .fallbackToDestructiveMigration()
-                    .build()
-        }
-
-        val kvPairDao get() = instance.keyValuePairDao()
-    }
-    abstract fun keyValuePairDao(): KeyValuePair.Dao
-
-    internal object Migration3 : RecreateSchemaMigration(2, 3, "KeyValuePair",
-            "(`key` TEXT NOT NULL, `valueType` INTEGER NOT NULL, `value` BLOB NOT NULL, PRIMARY KEY(`key`))",
-            "`key`, `valueType`, `value`")
+object SnackbarConsts {
+    const val ANIMATION_DURATION = BaseTransientBottomBar.ANIMATION_DURATION.toLong()
 }
